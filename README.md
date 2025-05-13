@@ -71,7 +71,7 @@ If you use **Veloclade** in your research, please cite it as:
   title        = {Veloclade: A Neuro-Symbolic Knowledge Graph with Clade-Inspired Dynamic Structure},
   year         = {2025},
   url          = {https://github.com/its-not-rocket-science/Veloclade},
-  note         = {Prototype research code. Available at: https://github.com/its-not-rocket-science/Veloclade}
+  note         = {Prototype research code. Available at: https://github.com/its-not-rocket-science/veloclade}
 }
 ```
 
