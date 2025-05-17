@@ -41,7 +41,7 @@ def encode_entities(entities, model):
         e.embedding = emb
 
 
-def cluster_and_expand(parent_class, eps=0.5, min_samples=2):
+def cluster_and_expand(parent_class, eps=0.6, min_samples=2):
     instances = list(parent_class.get_instances())
     if len(instances) < min_samples:
         return
@@ -60,8 +60,10 @@ def cluster_and_expand(parent_class, eps=0.5, min_samples=2):
         cluster_map[label].add_instance(entity)
 
 
-def example_veloclade():
+def run_experiment():
     model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    # Base classes
     entity = Entity("entity")
     organism = Entity("organism")
     person = Entity("person")
@@ -71,35 +73,59 @@ def example_veloclade():
     entity.add_subclass(location)
     organism.add_subclass(person)
     location.add_subclass(city)
+
+    # Expanded dataset
+    standard_city_desc = "major capital city"
     dataset = [
         ("Albert Einstein", "famous theoretical physicist"),
         ("Marie Curie", "pioneer in radioactivity research"),
         ("Isaac Newton", "mathematician and physicist"),
-        ("Paris", "capital city of France"),
-        ("London", "capital city of UK"),
-        ("Tokyo", "capital city of Japan")
+        ("Niels Bohr", "quantum theory pioneer"),
+        ("Stephen Hawking", "black hole and relativity physicist"),
+        ("Ada Lovelace", "early computing visionary"),
+        ("Paris", standard_city_desc),
+        ("London", standard_city_desc),
+        ("Tokyo", standard_city_desc),
+        ("New York", standard_city_desc),
+        ("Rome", standard_city_desc),
+        ("Berlin", standard_city_desc)
     ]
+
     people = []
     places = []
     for name, desc in dataset:
         ent = Entity(name, desc)
-        if "city" in desc:
+        if "city" in desc or "capital" in desc:
             city.add_instance(ent)
             places.append(ent)
         else:
             person.add_instance(ent)
             people.append(ent)
+
     encode_entities(people + places, model)
-    cluster_and_expand(person, eps=0.7, min_samples=2)
-    cluster_and_expand(city, eps=0.7, min_samples=2)
-    print("\nVeloclade Structure:")
-    for subclass in person.subclasses:
-        print(
-            f"{person.name} → {subclass.name}: {[e.name for e in subclass.instances]}")
-    for subclass in city.subclasses:
-        print(
-            f"{city.name} → {subclass.name}: {[e.name for e in subclass.instances]}")
+    # cluster_and_expand(person, eps=0.6, min_samples=2)
+    cluster_and_expand(person, eps=0.75, min_samples=2)
+    
+    # cluster_and_expand(city, eps=0.6, min_samples=2)
+    cluster_and_expand(city, eps=0.6, min_samples=2)
+    # cluster_and_expand(city, eps=0.9, min_samples=2)
+
+    print("\nVeloclade Experiment 1 Results:")
+
+    if person.subclasses:
+        for subclass in person.subclasses:
+            print(
+                f"{person.name} → {subclass.name}: {[e.name for e in subclass.instances]}")
+    else:
+        print(f"No subclasses created under '{person.name}'.")
+
+    if city.subclasses:
+        for subclass in city.subclasses:
+            print(
+                f"{city.name} → {subclass.name}: {[e.name for e in subclass.instances]}")
+    else:
+        print(f"No subclasses created under '{city.name}'.")
 
 
 if __name__ == "__main__":
-    example_veloclade()
+    run_experiment()
