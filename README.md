@@ -1,80 +1,94 @@
-
 # Veloclade
 
-**Veloclade** (Velocity + Clade) is an experimental neuro-symbolic knowledge graph system.
+A research prototype of a neuro-symbolic knowledge graph system with clade-inspired ontology growth control.
 
-It uses dynamic clade-inspired structures combined with dense embedding clustering (sentence-transformers) to control hierarchy growth and reduce subclassing explosion.
+Veloclade uses a hierarchical classification structure inspired by biological cladistics — combined with sentence-transformer embedding clustering — to control the growth of ontologies and mitigate *subclassing explosion*: the tendency of knowledge graphs to proliferate redundant, overly specific subclasses that fragment reasoning and inflate graph size.
 
-Tardigrade mascot = extreme resilience under data scaling.
+---
 
-## 📋 Project Description
+## The problem
 
-Veloclade is a prototype of a neuro-symbolic knowledge graph system designed for experimentation in:
-- Controlled automatic ontology growth
-- Hybrid symbolic + dense vector reasoning
-- Self-organizing knowledge structures
+In large ontologies, subclassing explosion is pervasive. Every time a new concept is added, the path of least resistance is to create a new subclass of something nearby. The result is ontologies thousands of nodes deep with near-duplicate classes, poor generalisation, and brittle inference. Existing approaches (OWL reasoners, manual curation) do not scale.
 
-**Current status:** early-stage prototype research code.
+Veloclade approaches this differently: rather than preventing new nodes, it controls *where they go* in the hierarchy by combining:
 
-## 🛠️ Requirements
+1. **Clade-based hierarchy** — inheritance is governed by clade membership (monophyletic groupings), not arbitrary parent–child relationships. New concepts must justify their position in terms of shared derived properties, not just surface similarity.
+2. **Embedding clustering** — sentence-transformer embeddings of concept descriptions are clustered to identify when a proposed new node is semantically redundant with an existing one, or belongs within an existing clade rather than spawning a new one.
+3. **Growth policy engine** — configurable rules governing when a new node may be added, when it should be merged with an existing node, and when a new clade may be created.
 
-- Python 3.8+
-- sentence-transformers
-- numpy
-- scikit-learn
+---
 
-Install dependencies:
+## Architecture
+
+```
+New concept proposal
+        │
+        ▼
+┌───────────────────────┐
+│  Embedding encoder     │  — sentence-transformers
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│  Clade membership      │  — Find nearest existing clade
+│  classifier            │    by embedding similarity
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│  Growth policy engine  │  — Merge / place in clade / create new clade
+│                        │    based on configurable thresholds
+└──────────┬────────────┘
+           │
+           ▼
+┌───────────────────────┐
+│  Knowledge graph       │  — RDFLib / custom graph store
+│  update                │
+└───────────────────────┘
+```
+
+---
+
+## Getting started
+
 ```bash
 pip install -r requirements.txt
+python -m veloclade.demo
 ```
 
-## 🚀 Run Example
+This runs a demonstration of controlled ontology growth on a sample biological classification dataset, showing subclassing explosion in an unconstrained graph versus controlled growth under Veloclade's policy engine.
 
-```bash
-python veloclade.py
-```
+### Requirements
 
-## 🛣️ Research Roadmap
+- Python 3.10+
+- sentence-transformers
+- RDFLib
+- scikit-learn
 
-1. Fine-tuning dynamic clade growth
-2. Soft symbolic-embedding bridges
-3. Dynamic fuzzy reasoning
-4. Multi-context heterarchical modeling
-5. Provenance tracking
-6. Scalability experiments
-7. Visualization tools
-8. Research publication
+---
 
-👉 Contributions and collaboration welcome!
+## Related projects
 
-## 🤝 Contributing
+Veloclade is part of a cluster of related knowledge representation tools:
 
-Contributions to Veloclade are welcome and encouraged!
+- [koios](../koios) — ontology-grounded transformer for knowledge-augmented reasoning
+- [ananke](../ananke) — ontology-driven world-building system (a practical application of controlled ontology growth)
 
-If you have ideas for improving the system, fixing bugs, or extending functionality:
-- Fork the repository
-- Create a feature branch (`git checkout -b feature-name`)
-- Commit your changes
-- Open a pull request with a clear description of your contribution
+---
 
-You can also open issues to suggest features, report problems, or discuss research directions.
+## Related work
 
-This project is intended as an open collaborative research prototype.
+- Kulmanov et al. (2019) — [ELEmbeddings: Geometric construction of models for the Description Logic EL++](https://arxiv.org/abs/1902.10499)
+- Chen et al. (2021) — [Ontology-Enhanced Pre-training for Bio-Medical NLP](https://arxiv.org/abs/2110.05572)
 
-## 📄 Cite this work
+---
 
-If you use **Veloclade** in your research, please cite it as:
+## Status
 
-```
-@misc{veloclade2025,
-  author       = {Paul Schleifer},
-  title        = {Veloclade: A Neuro-Symbolic Knowledge Graph with Clade-Inspired Dynamic Structure},
-  year         = {2025},
-  url          = {https://github.com/its-not-rocket-science/Veloclade},
-  note         = {Prototype research code. Available at: https://github.com/its-not-rocket-science/veloclade}
-}
-```
+Research prototype. Core clade membership classifier and growth policy engine are implemented. Evaluation against standard ontology benchmarks (OWL ontologies from BioPortal) is planned.
 
-## 📋 License
+---
 
-This project is licensed under the MIT License.
+## Licence
+
+MIT
