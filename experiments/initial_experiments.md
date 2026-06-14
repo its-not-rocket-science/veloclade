@@ -33,7 +33,7 @@
 
 **Conclusion:**
 - Veloclade can extend symbolic knowledge through dense reasoning.
-- Centroid anchors enable inference from unseen descriptions.
+- Centroid anchors enable inference from unseen descriptions. 
 
 **Next:** Experiment 3: soft fuzzy membership assignment based on proximity to multiple centroids.
 
